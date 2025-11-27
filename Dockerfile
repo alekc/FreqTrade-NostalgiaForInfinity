@@ -5,20 +5,22 @@ ARG NFI_VERSION=main
 
 # Install git if not already present
 USER root
-RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y --no-install-recommends git && rm -rf /var/lib/apt/lists/*
 
 # Switch back to freqtrade user
 USER ftuser
 
 # Clone NostalgiaForInfinity strategy
-RUN mkdir -p /freqtrade/user_data/strategies && \
-    cd /freqtrade/user_data/strategies && \
-    git clone https://github.com/iterativv/NostalgiaForInfinity.git && \
-    cd NostalgiaForInfinity && \
-    git checkout ${NFI_VERSION}
+RUN mkdir -p /freqtrade/user_data/strategies
+
+WORKDIR /freqtrade/user_data/strategies
+RUN git clone https://github.com/iterativv/NostalgiaForInfinity.git
+
+WORKDIR /freqtrade/user_data/strategies/NostalgiaForInfinity
+RUN git checkout ${NFI_VERSION}
 
 # Create a symlink to the strategies for easier access
-RUN cd /freqtrade/user_data/strategies && \
-    ln -sf NostalgiaForInfinity/*.py .
+WORKDIR /freqtrade/user_data/strategies
+RUN ln -sf NostalgiaForInfinity/*.py .
 
 WORKDIR /freqtrade
